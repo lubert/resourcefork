@@ -37,6 +37,12 @@ describe("resourceFork", function() {
 	    assert.equal('blaster', rf.resources['wëap'][128].name);
 	});
 
+	it("should get the data from the resources", function() {
+	    var data = 'ff ff 00 1e 00 ea 00 7b ff ff 00 01 ff ff ff ff 00 00 ff ff 01 59 ff ff 00 00 00 00 00 00 00 00 ff ff 00 00 ff ff ff ff ff ff ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff 00 00 00 00 ff ff 00 00 00 00 ff ff ff ff ff ff 00 00 00 00 00 00 ff ff ff ff ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff 00 00 ff ff 00 00 00 00 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff';
+
+	    assert.equal(data, rf.resources['wëap'][128].dataString);
+	});
+
     });
 });
 

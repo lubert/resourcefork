@@ -68,7 +68,7 @@ class resourceFork {
 	    this.resources[resource_type] = [];
 
 	    for (var j = 0; j < quantity; j++) {
-		var res = {};
+		var res = new resource();
 		res.type = resource_type;
 		res.id = this.type_list.getUint16(offset + 12*j);
 
@@ -112,7 +112,8 @@ class resourceFork {
 	
 	
     }
-    
+
+
     readFile() {
 	return new Promise(function(fulfill, reject) {
 	    var f = fs.readFile(this.path, function(err, data) {
@@ -150,6 +151,33 @@ class resourceFork {
     }
 
 
+}
+
+class resource {
+    constructor() {
+	
+    }
+    get dataArray() {
+	var arr = [];
+	for (var i = 0; i < this.data.byteLength; i++) {
+	    arr.push(this.data.getUint8(i));
+	}
+	return arr;
+    }
+    get dataString() {
+	// for conveniently viewing the data
+	var hexArr = this.dataArray.map(function(n) {
+	    var hex = n.toString(16);
+	    if (hex.length === 1) {
+		hex = "0" + hex;
+	    }
+	    return hex;
+
+	});
+	return hexArr.join(" ");
+	
+	
+    }
 }
 
 exports.resourceFork = resourceFork;
