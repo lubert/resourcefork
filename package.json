@@ -4,7 +4,7 @@
   "description": "Read and parse Mac resource forks",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/mattsoulanille/ResourceForkJS#readme",
   "dependencies": {
-    "stringview": "^2.0.1"
+    "bluebird": "^3.5.0",
+    "mocha": "^3.4.2"
   }
 }
