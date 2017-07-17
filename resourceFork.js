@@ -31,6 +31,15 @@ class resourceFork {
 	var l_data = this.dataView.getUint32(2*4);
 	var l_map = this.dataView.getUint32(3*4);
 
+	// Verify that the file is actually in resource fork format
+	if (o_data !== this.dataView.getUint32(o_map) ||
+	    o_map !== this.dataView.getUint32(o_map + 4) ||
+	    l_data !== this.dataView.getUint32(o_map + 8) ||
+	    l_map !== this.dataView.getUint32(o_map + 12)) {
+	    throw("Not a valid resourceFork file");
+	}
+
+	
 	// Get resource map
 	this.resource_data = new DataView(this.buffer, o_data, l_data);
 	this.resource_map = new DataView(this.buffer, o_map, l_map);
