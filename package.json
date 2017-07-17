@@ -1,6 +1,6 @@
 {
   "name": "resourceforkjs",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Read and parse Mac resource forks",
   "main": "resourceFork.js",
   "scripts": {

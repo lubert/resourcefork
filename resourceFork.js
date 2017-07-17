@@ -118,7 +118,7 @@ class resourceFork {
 	}
 	
 	
-	
+	return this.resources;
 	
     }
 
@@ -166,16 +166,16 @@ class resource {
     constructor() {
 	
     }
-    get dataArray() {
+    get shortArray() {
 	var arr = [];
 	for (var i = 0; i < this.data.byteLength; i++) {
 	    arr.push(this.data.getUint8(i));
 	}
 	return arr;
     }
-    get dataString() {
+    get hexString() {
 	// for conveniently viewing the data
-	var hexArr = this.dataArray.map(function(n) {
+	var hexArr = this.shortArray.map(function(n) {
 	    var hex = n.toString(16);
 	    if (hex.length === 1) {
 		hex = "0" + hex;
@@ -184,9 +184,29 @@ class resource {
 
 	});
 	return hexArr.join(" ");
-	
-	
     }
+
+    get shortString() {
+	var shortArr = this.shortArray;
+	return shortArr.map(function(n) {
+	    return n.toString();
+	}).join(" ");
+    }
+
+    get intArray() {
+	var arr = [];
+	for (var i = 0; i < this.data.byteLength; i+=2) {
+	    arr.push(this.data.getUint16(i));
+	}
+	return arr;
+    }
+    get intString() {
+	var intArr = this.intArray;
+	return intArr.map(function(n) {
+	    return n.toString();
+	}).join(" ");
+    }
+    
 }
 
 exports.resourceFork = resourceFork;
