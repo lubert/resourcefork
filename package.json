@@ -20,7 +20,9 @@
   },
   "homepage": "https://github.com/mattsoulanille/ResourceForkJS#readme",
   "dependencies": {
-    "bluebird": "^3.5.0",
-    "mocha": "^3.4.2"
+    "bluebird": "^3.5.1"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0"
   }
 }
