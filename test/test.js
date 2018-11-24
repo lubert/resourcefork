@@ -20,7 +20,7 @@ describe("resourceFork", function() {
 	
     });
     
-    describe("#constructor()", function() {
+    describe("constructor()", function() {
 	it('should properly append the resource fork to the given path', function() {
 	    var test_rf = new resourceFork("some/example/path");
 	    assert.equal("some/example/path/..namedfork/rsrc", test_rf.path);
