@@ -3,8 +3,10 @@
   "version": "0.0.5",
   "description": "Read and parse Mac resource forks",
   "main": "resourceFork.js",
+  "types": "resourceFork.d.ts",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha -r ts-node/register -O tsconfig.json --recursive test/**/*.ts test/**/**/*.ts",
+    "build": "tsc --declaration --outDir ."
   },
   "repository": {
     "type": "git",
@@ -20,9 +22,15 @@
   },
   "homepage": "https://github.com/mattsoulanille/ResourceForkJS#readme",
   "dependencies": {
-    "bluebird": "^3.5.1"
+    "typescript": "^3.1.6"
   },
   "devDependencies": {
-    "mocha": "^5.2.0"
+    "@types/chai": "^4.1.7",
+    "@types/chai-as-promised": "^7.1.0",
+    "@types/mocha": "^5.2.5",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "mocha": "^5.2.0",
+    "ts-node": "^7.0.1"
   }
 }
