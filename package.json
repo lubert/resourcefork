@@ -1,9 +1,9 @@
 {
   "name": "resourcefork",
   "version": "0.0.5",
-  "description": "Read and parse Mac resource forks",
-  "main": "dist/resourceFork.js",
-  "types": "dist/resourceFork.d.ts",
+  "description": "Read and parse classic Mac OS resource forks in JavaScript.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "lint": "prettier . --write",
@@ -13,7 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/lubert/resourcefork.git"
   },
-  "keywords": ["resourcefork"],
+  "keywords": ["macintosh", "classic mac", "mac os", "resource fork"],
   "author": "Lu Zhu",
   "license": "MIT",
   "bugs": {

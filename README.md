@@ -1,3 +1,3 @@
-# ResourceForkJS
+# resourcefork
 
-Mac OS resource fork reader for JavaScript / Node
+Read and parse classic Mac OS resource forks in JavaScript.
