@@ -1,15 +1,17 @@
+import { readFile } from "fs/promises";
 import ResourceMap from "../src/ResourceMap";
-import { readResourceFork } from "../src/resourceFork";
+import { parseResourceFork } from "../src/resourceFork";
 
 let resources: ResourceMap;
 
 beforeAll(async () => {
   // Pretend data fork is a resource fork for compatibility with other OSes
-  resources = await readResourceFork("./test/test.ndat", false);
+  const data = await readFile("./test/test.ndat");
+  resources = parseResourceFork(data.buffer);
 });
 
 describe("resourceFork", () => {
-  describe("readResourceFork()", () => {
+  describe("parseResourceFork()", () => {
     it("should get the types of resources", () => {
       expect(resources).toHaveProperty("wëap");
     });

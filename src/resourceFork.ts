@@ -1,23 +1,13 @@
-import { normalize } from "path";
 import ResourceMap from "./ResourceMap";
 import Resource from "./Resource";
-import { decodeMacRoman, readFilePromise } from "./utils";
+import { decodeMacRoman } from "./utils";
 
-export async function readResourceFork(
-  filePath: string,
-  readResourceFork = true,
-): Promise<ResourceMap> {
-  if (readResourceFork) {
-    filePath = normalize(filePath + "/..namedfork/rsrc");
-  } else {
-    filePath = normalize(filePath);
-  }
+export function parseResourceFork(buffer: ArrayBuffer): ResourceMap {
   const resources: ResourceMap = {};
-
-  const buffer = await readFilePromise(filePath);
   const dataView = new DataView(buffer);
 
   // Offset and length of resource data and resource map
+
   const oData = dataView.getUint32(0);
   const oMap = dataView.getUint32(1 * 4);
   const lData = dataView.getUint32(2 * 4);

@@ -1,20 +1,3 @@
-import { readFile } from "fs";
-
-/**
- * Promise wrapper for fs.readFile
- */
-export function readFilePromise(filePath: string): Promise<ArrayBuffer> {
-  return new Promise((resolve, reject) => {
-    readFile(filePath, (err, data) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(data.buffer);
-    });
-  });
-}
-
 const HIGH_CHARS_UNICODE =
   "ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü†°¢£§•¶ß®©™´¨≠ÆØ∞±≤≥¥µ∂∑∏π∫ªºΩæø¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄€‹›ﬁﬂ‡·‚„‰ÂÊÁËÈÍÎÏÌÓÔÒÚÛÙıˆ˜¯˘˙˚¸˝˛ˇ";
 
