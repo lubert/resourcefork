@@ -1,36 +1,33 @@
 {
-  "name": "resourceforkjs",
+  "name": "resourcefork",
   "version": "0.0.5",
   "description": "Read and parse Mac resource forks",
-  "main": "resourceFork.js",
-  "types": "resourceFork.d.ts",
+  "main": "dist/resourceFork.js",
+  "types": "dist/resourceFork.d.ts",
   "scripts": {
-    "test": "mocha -r ts-node/register -O tsconfig.json --recursive test/**/*.ts test/**/**/*.ts",
-    "build": "tsc --declaration --outDir ."
+    "build": "tsc",
+    "lint": "prettier . --write",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mattsoulanille/ResourceForkJS.git"
+    "url": "git+https://github.com/lubert/resourcefork.git"
   },
-  "keywords": [
-    "resourcefork"
-  ],
-  "author": "Matthew Soulanille",
+  "keywords": ["resourcefork"],
+  "author": "Lu Zhu",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mattsoulanille/ResourceForkJS/issues"
+    "url": "https://github.com/lubert/resourcefork/issues"
   },
-  "homepage": "https://github.com/mattsoulanille/ResourceForkJS#readme",
+  "homepage": "https://github.com/lubert/resourcefork#readme",
   "dependencies": {
-    "typescript": "^3.1.6"
+    "typescript": "^5.5.4"
   },
   "devDependencies": {
-    "@types/chai": "^4.1.7",
-    "@types/chai-as-promised": "^7.1.0",
-    "@types/mocha": "^5.2.5",
-    "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
-    "mocha": "^5.2.0",
-    "ts-node": "^7.0.1"
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "prettier": "3.3.3",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2"
   }
 }
