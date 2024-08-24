@@ -1,10 +1,11 @@
 {
   "name": "resourcefork",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Read and parse classic Mac OS resource forks in JavaScript.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "prepare": "tsc",
     "build": "tsc",
     "lint": "prettier . --write",
     "test": "jest"
