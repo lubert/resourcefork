@@ -1,9 +1,9 @@
-import ResFork from "../src/ResFork";
+import ResourceFork from "../src/ResourceFork";
 
 describe("ResourceFork", () => {
   describe("header", () => {
     it("should parse the header of the resource fork", () => {
-      const rf = new ResFork("./test/test.ndat");
+      const rf = new ResourceFork("./test/test.ndat");
       expect(rf.header).toEqual({
         dataLen: 146,
         dataOff: 256,
@@ -15,7 +15,7 @@ describe("ResourceFork", () => {
 
   describe("resourceMap", () => {
     it("should parse the resource map", () => {
-      const rf = new ResFork("./test/test.ndat");
+      const rf = new ResourceFork("./test/test.ndat");
       const resourceMap = rf.resourceMap;
       expect(Object.keys(resourceMap)).toEqual(["dsïg", "wëap"]);
       expect(resourceMap["wëap"]?.[128]?.name).toBe("blaster");

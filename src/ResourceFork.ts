@@ -1,21 +1,14 @@
 import { openSync } from "fs";
 import FileDataView from "./FileDataView";
 import { decodeMacRoman } from "./utils";
-import ResourceMap from "./ResourceMap";
+import { ResourceForkHeader, ResourceMap } from "./types";
 import Resource from "./Resource";
 
-type ResForkHeader = {
-  dataOff: number;
-  mapOff: number;
-  dataLen: number;
-  mapLen: number;
-};
-
-export default class ResFork {
+export default class ResourceFork {
   fd: number;
   view: FileDataView;
 
-  protected _header?: ResForkHeader;
+  protected _header?: ResourceForkHeader;
   protected _types?: string[];
   protected _resourceMap?: ResourceMap;
 
@@ -24,7 +17,7 @@ export default class ResFork {
     this.view = new FileDataView(this.fd);
   }
 
-  get header(): ResForkHeader {
+  get header(): ResourceForkHeader {
     if (!this._header) {
       const dataOff = this.view.readUInt32BE(0);
       const mapOff = this.view.readUInt32BE(4);
