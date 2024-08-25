@@ -1,48 +1,59 @@
+import FileDataView from "./FileDataView";
+
 export default class Resource {
-  readonly data: DataView;
-  readonly type: string;
-  readonly id: number;
-  readonly name: string;
+  constructor(
+    readonly data: FileDataView,
+    readonly type: string,
+    readonly id: number,
+    readonly name: string,
+    readonly offset: number,
+    readonly size: number,
+  ) {}
 
-  constructor(resourceType: string, id: number, name: string, data: DataView) {
-    this.type = resourceType;
-    this.id = id;
-    this.name = name;
-    this.data = data;
+  buffer() {
+    return this.data.readBytes(this.size, this.offset);
   }
 
-  get shortArray() {
-    const arr = [];
-    for (let i = 0; i < this.data.byteLength; i++) {
-      arr.push(this.data.getUint8(i));
+  toByteArray() {
+    return Array.from(this.buffer());
+  }
+
+  toShortArray() {
+    const buffer = this.buffer();
+    const shortArray = [];
+    for (let i = 0; i < buffer.length; i += 2) {
+      shortArray.push(buffer.readUInt16BE(i));
     }
-    return arr;
+    return shortArray;
   }
 
-  get hexString() {
-    const hexArr = this.shortArray.map((n) => {
-      let hex = n.toString(16);
-      if (hex.length === 1) {
-        hex = "0" + hex;
-      }
-      return hex;
-    });
-    return hexArr.join(" ");
-  }
-
-  get shortString() {
-    return this.shortArray.map((n) => n.toString()).join(" ");
-  }
-
-  get intArray() {
-    const arr = [];
-    for (let i = 0; i < this.data.byteLength; i += 2) {
-      arr.push(this.data.getUint16(i));
+  toIntArray() {
+    const buffer = this.buffer();
+    const intArray = [];
+    for (let i = 0; i < buffer.length; i += 4) {
+      intArray.push(buffer.readUInt32BE(i));
     }
-    return arr;
+    return intArray;
   }
 
-  get intString() {
-    return this.intArray.map((n) => n.toString()).join(" ");
+  toShortString() {
+    return this.toShortArray().join(" ");
+  }
+
+  toIntString() {
+    return this.toIntArray().join(" ");
+  }
+
+  toHexString() {
+    const bytes = this.toByteArray();
+    return bytes
+      .map((n) => {
+        let hex = n.toString(16);
+        if (hex.length === 1) {
+          hex = "0" + hex;
+        }
+        return hex;
+      })
+      .join(" ");
   }
 }

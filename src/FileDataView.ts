@@ -1,20 +1,29 @@
 import { readSync } from "fs";
 
-export default class FileSyncDataView {
+export default class FileDataView {
   protected buffer = Buffer.alloc(8);
 
-  constructor(
-    readonly fd: number,
-    readonly byteOffset = 0,
-    readonly byteLength = -1,
-  ) {}
+  readonly fd: number;
+
+  readonly byteOffset: number;
+
+  constructor(fd: number, offset = 0) {
+    this.fd = fd;
+    this.byteOffset = offset;
+  }
 
   protected baseRead(offset: number, size: number) {
     readSync(this.fd, this.buffer, 0, size, this.byteOffset + offset);
   }
 
-  withOffset(offset: number, length = -1) {
-    return new FileSyncDataView(this.fd, this.byteOffset + offset, length);
+  withOffset(offset: number) {
+    return new FileDataView(this.fd, this.byteOffset + offset);
+  }
+
+  readBytes(length: number, offset = 0) {
+    const buffer = Buffer.alloc(length);
+    readSync(this.fd, buffer, 0, length, this.byteOffset + offset);
+    return buffer;
   }
 
   readInt8(offset = 0) {

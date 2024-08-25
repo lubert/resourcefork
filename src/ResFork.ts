@@ -1,6 +1,8 @@
 import { openSync } from "fs";
-import FileSyncDataView from "./FileSyncDataView";
+import FileDataView from "./FileDataView";
 import { decodeMacRoman } from "./utils";
+import ResourceMap from "./ResourceMap";
+import Resource from "./Resource";
 
 type ResForkHeader = {
   dataOff: number;
@@ -11,14 +13,15 @@ type ResForkHeader = {
 
 export default class ResFork {
   fd: number;
-  view: FileSyncDataView;
+  view: FileDataView;
 
   protected _header?: ResForkHeader;
   protected _types?: string[];
+  protected _resourceMap?: ResourceMap;
 
   constructor(readonly filePath: string) {
     this.fd = openSync(filePath, "r");
-    this.view = new FileSyncDataView(this.fd);
+    this.view = new FileDataView(this.fd);
   }
 
   get header(): ResForkHeader {
@@ -41,12 +44,28 @@ export default class ResFork {
     return this._header;
   }
 
-  get types(): string[] {
-    if (!this._types) {
-      this._types = [];
-      const { mapOff } = this.header;
-      const typesOff = this.view.readUInt16BE(mapOff + 24) + mapOff;
-      const typesView = this.view.withOffset(typesOff);
+  get dataView() {
+    const { dataOff } = this.header;
+    return this.view.withOffset(dataOff);
+  }
+
+  get typesView() {
+    const { mapOff } = this.header;
+    const typesOff = this.view.readUInt16BE(mapOff + 24) + mapOff;
+    return this.view.withOffset(typesOff);
+  }
+
+  get namesView() {
+    const { mapOff } = this.header;
+    const namesOff = this.view.readUInt16BE(mapOff + 26) + mapOff;
+    return this.view.withOffset(namesOff);
+  }
+
+  get resourceMap(): ResourceMap {
+    if (!this._resourceMap) {
+      const resourceMap: ResourceMap = {};
+
+      const { typesView, namesView, dataView } = this;
       // Count is stored as the number of resource types in the map minus 1
       const typesCount = typesView.readUInt16BE(0);
 
@@ -59,9 +78,45 @@ export default class ResFork {
         ];
 
         const resType = decodeMacRoman(byteArray);
-        this._types.push(resType);
+        resourceMap[resType] = {};
+
+        const typeCount = typesView.readUInt16BE(6 + 8 * i);
+        const offset = typesView.readUInt16BE(8 + 8 * i);
+
+        for (let j = 0; j <= typeCount; j++) {
+          const resId = typesView.readUInt16BE(offset + 12 * j);
+          const name = typesView.readUInt16BE(offset + 12 * j + 2);
+
+          let resName: string;
+          if (name === 0xffff) {
+            resName = "";
+          } else {
+            const nameLen = namesView.readUInt8(name);
+            const curNameList = [];
+            for (let k = 0; k < nameLen; k++) {
+              curNameList.push(namesView.readUInt8(name + 1 + k));
+            }
+            resName = decodeMacRoman(curNameList);
+          }
+
+          const tmsb = typesView.readUInt8(offset + 12 * j + 5);
+          const t = typesView.readUInt16BE(offset + 12 * j + 6);
+
+          const resDataOff = (tmsb << 16) + t;
+          const resDataLen = dataView.readUInt32BE(resDataOff);
+          const res = new Resource(
+            dataView,
+            resType,
+            resId,
+            resName,
+            resDataOff + 4,
+            resDataLen,
+          );
+          resourceMap[resType][res.id] = res;
+        }
       }
+      this._resourceMap = resourceMap;
     }
-    return this._types;
+    return this._resourceMap;
   }
 }

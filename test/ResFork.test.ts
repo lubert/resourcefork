@@ -13,10 +13,16 @@ describe("ResourceFork", () => {
     });
   });
 
-  describe("types", () => {
-    it("should parse the types of resources", () => {
+  describe("resourceMap", () => {
+    it("should parse the resource map", () => {
       const rf = new ResFork("./test/test.ndat");
-      expect(rf.types).toEqual(["dsïg", "wëap"]);
+      const resourceMap = rf.resourceMap;
+      expect(Object.keys(resourceMap)).toEqual(["dsïg", "wëap"]);
+      expect(resourceMap["wëap"]?.[128]?.name).toBe("blaster");
+
+      const data =
+        "ff ff 00 1e 00 ea 00 7b ff ff 00 01 ff ff ff ff 00 00 ff ff 01 59 ff ff 00 00 00 00 00 00 00 00 ff ff 00 00 ff ff ff ff ff ff ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff 00 00 00 00 ff ff 00 00 00 00 ff ff ff ff ff ff 00 00 00 00 00 00 ff ff ff ff ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff 00 00 ff ff 00 00 00 00 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff";
+      expect(resourceMap["wëap"]?.[128]?.toHexString()).toBe(data);
     });
   });
 });
