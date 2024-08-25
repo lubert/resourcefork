@@ -9,8 +9,8 @@ export type ResourceMap = Partial<
 >;
 
 export type ResourceForkHeader = {
-  dataOff: number;
-  mapOff: number;
-  dataLen: number;
-  mapLen: number;
+  dataOffset: number;
+  mapOffset: number;
+  dataLength: number;
+  mapLength: number;
 };

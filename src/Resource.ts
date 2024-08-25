@@ -1,5 +1,9 @@
 import FileDataView from "./FileDataView";
 
+/**
+ * Represents a resource in a resource fork. Data is not loaded into memory
+ * until requested.
+ */
 export default class Resource {
   constructor(
     readonly data: FileDataView,
@@ -7,11 +11,11 @@ export default class Resource {
     readonly id: number,
     readonly name: string,
     readonly offset: number,
-    readonly size: number,
+    readonly length: number,
   ) {}
 
   buffer() {
-    return this.data.readBytes(this.size, this.offset);
+    return this.data.readBytes(this.length, this.offset);
   }
 
   toByteArray() {

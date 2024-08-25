@@ -1,15 +1,14 @@
-import { openSync } from "fs";
+import { openSync, closeSync } from "fs";
 import FileDataView from "./FileDataView";
-import { decodeMacRoman } from "./utils";
-import { ResourceForkHeader, ResourceMap } from "./types";
 import Resource from "./Resource";
+import { ResourceForkHeader, ResourceMap } from "./types";
+import { decodeMacRoman } from "./utils";
 
 export default class ResourceFork {
   fd: number;
   view: FileDataView;
 
   protected _header?: ResourceForkHeader;
-  protected _types?: string[];
   protected _resourceMap?: ResourceMap;
 
   constructor(readonly filePath: string) {
@@ -17,19 +16,27 @@ export default class ResourceFork {
     this.view = new FileDataView(this.fd);
   }
 
-  get header(): ResourceForkHeader {
+  /**
+   * Returns the resource fork header.
+   */
+  header(): ResourceForkHeader {
     if (!this._header) {
-      const dataOff = this.view.readUInt32BE(0);
-      const mapOff = this.view.readUInt32BE(4);
-      const dataLen = this.view.readUInt32BE(8);
-      const mapLen = this.view.readUInt32BE(12);
-      this._header = { dataOff, mapOff, dataLen, mapLen };
+      const dataOffset = this.view.readUInt32BE(0);
+      const mapOffset = this.view.readUInt32BE(4);
+      const dataLength = this.view.readUInt32BE(8);
+      const mapLength = this.view.readUInt32BE(12);
+      this._header = {
+        dataOffset,
+        mapOffset,
+        dataLength,
+        mapLength,
+      };
 
       if (
-        dataOff !== this.view.readUInt32BE(mapOff) ||
-        mapOff !== this.view.readUInt32BE(mapOff + 4) ||
-        dataLen !== this.view.readUInt32BE(mapOff + 8) ||
-        mapLen !== this.view.readUInt32BE(mapOff + 12)
+        dataOffset !== this.view.readUInt32BE(mapOffset) ||
+        mapOffset !== this.view.readUInt32BE(mapOffset + 4) ||
+        dataLength !== this.view.readUInt32BE(mapOffset + 8) ||
+        mapLength !== this.view.readUInt32BE(mapOffset + 12)
       ) {
         throw Error("Not a valid resource fork");
       }
@@ -37,31 +44,22 @@ export default class ResourceFork {
     return this._header;
   }
 
-  get dataView() {
-    const { dataOff } = this.header;
-    return this.view.withOffset(dataOff);
-  }
-
-  get typesView() {
-    const { mapOff } = this.header;
-    const typesOff = this.view.readUInt16BE(mapOff + 24) + mapOff;
-    return this.view.withOffset(typesOff);
-  }
-
-  get namesView() {
-    const { mapOff } = this.header;
-    const namesOff = this.view.readUInt16BE(mapOff + 26) + mapOff;
-    return this.view.withOffset(namesOff);
-  }
-
-  get resourceMap(): ResourceMap {
+  /**
+   * Returns a map of all resources in the resource fork.
+   */
+  resourceMap(): ResourceMap {
     if (!this._resourceMap) {
       const resourceMap: ResourceMap = {};
+      const { dataOffset, mapOffset } = this.header();
+      const typesOffset = this.view.readUInt16BE(mapOffset + 24) + mapOffset;
+      const namesOffset = this.view.readUInt16BE(mapOffset + 26) + mapOffset;
 
-      const { typesView, namesView, dataView } = this;
+      const typesView = this.view.withOffset(typesOffset);
+      const namesView = this.view.withOffset(namesOffset);
+      const dataView = this.view.withOffset(dataOffset);
+
       // Count is stored as the number of resource types in the map minus 1
       const typesCount = typesView.readUInt16BE(0);
-
       for (let i = 0; i <= typesCount; i++) {
         const byteArray = [
           typesView.readUInt8(2 + 8 * i),
@@ -70,46 +68,60 @@ export default class ResourceFork {
           typesView.readUInt8(5 + 8 * i),
         ];
 
-        const resType = decodeMacRoman(byteArray);
-        resourceMap[resType] = {};
+        const type = decodeMacRoman(byteArray);
+        resourceMap[type] = {};
 
         const typeCount = typesView.readUInt16BE(6 + 8 * i);
-        const offset = typesView.readUInt16BE(8 + 8 * i);
+        const typeOffset = typesView.readUInt16BE(8 + 8 * i);
 
         for (let j = 0; j <= typeCount; j++) {
-          const resId = typesView.readUInt16BE(offset + 12 * j);
-          const name = typesView.readUInt16BE(offset + 12 * j + 2);
+          const id = typesView.readUInt16BE(typeOffset + 12 * j);
+          const nameVal = typesView.readUInt16BE(typeOffset + 12 * j + 2);
 
-          let resName: string;
-          if (name === 0xffff) {
-            resName = "";
+          let name: string;
+          if (nameVal === 0xffff) {
+            name = "";
           } else {
-            const nameLen = namesView.readUInt8(name);
+            const nameLen = namesView.readUInt8(nameVal);
             const curNameList = [];
             for (let k = 0; k < nameLen; k++) {
-              curNameList.push(namesView.readUInt8(name + 1 + k));
+              curNameList.push(namesView.readUInt8(nameVal + 1 + k));
             }
-            resName = decodeMacRoman(curNameList);
+            name = decodeMacRoman(curNameList);
           }
 
-          const tmsb = typesView.readUInt8(offset + 12 * j + 5);
-          const t = typesView.readUInt16BE(offset + 12 * j + 6);
+          const tmsb = typesView.readUInt8(typeOffset + 12 * j + 5);
+          const t = typesView.readUInt16BE(typeOffset + 12 * j + 6);
 
-          const resDataOff = (tmsb << 16) + t;
-          const resDataLen = dataView.readUInt32BE(resDataOff);
+          const dataOffset = (tmsb << 16) + t;
+          const dataLength = dataView.readUInt32BE(dataOffset);
           const res = new Resource(
             dataView,
-            resType,
-            resId,
-            resName,
-            resDataOff + 4,
-            resDataLen,
+            type,
+            id,
+            name,
+            dataOffset + 4,
+            dataLength,
           );
-          resourceMap[resType][res.id] = res;
+          resourceMap[type][res.id] = res;
         }
       }
       this._resourceMap = resourceMap;
     }
     return this._resourceMap;
+  }
+
+  /**
+   * Returns a resource by type and id.
+   */
+  getResource(type: string, id: number): Resource | undefined {
+    return this.resourceMap()[type]?.[id];
+  }
+
+  /**
+   * Closes the resource fork file descriptor.
+   */
+  close() {
+    closeSync(this.fd);
   }
 }
