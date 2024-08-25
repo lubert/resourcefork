@@ -1,5 +1,8 @@
 import { readSync } from "fs";
 
+/**
+ * A DataView-like class for reading data from a file descriptor.
+ */
 export default class FileDataView {
   protected buffer = Buffer.alloc(8);
 
