@@ -1,14 +1,14 @@
 import { openSync, closeSync } from "fs";
 import FileDataView from "./FileDataView";
 import Resource from "./Resource";
-import { ResourceForkHeader, ResourceMap } from "./types";
+import { ResourceHeader, ResourceMap } from "./types";
 import { decodeMacRoman } from "./utils";
 
 export default class ResourceFork {
   fd: number;
   view: FileDataView;
 
-  protected _header?: ResourceForkHeader;
+  protected _header?: ResourceHeader;
   protected _resourceMap?: ResourceMap;
 
   constructor(readonly filePath: string) {
@@ -19,7 +19,7 @@ export default class ResourceFork {
   /**
    * Returns the resource fork header.
    */
-  header(): ResourceForkHeader {
+  header(): ResourceHeader {
     if (!this._header) {
       const dataOffset = this.view.readUInt32BE(0);
       const mapOffset = this.view.readUInt32BE(4);

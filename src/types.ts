@@ -8,7 +8,7 @@ export type ResourceMap = Partial<
   Record<string, Partial<Record<string, Resource>>>
 >;
 
-export type ResourceForkHeader = {
+export type ResourceHeader = {
   dataOffset: number;
   mapOffset: number;
   dataLength: number;
