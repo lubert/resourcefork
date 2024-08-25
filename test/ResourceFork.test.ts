@@ -4,7 +4,7 @@ describe("ResourceFork", () => {
   let rf: ResourceFork;
 
   beforeAll(() => {
-    rf = new ResourceFork("./test/test.ndat");
+    rf = new ResourceFork("./test/test.ndat", false);
   });
 
   describe("header", () => {

@@ -1,4 +1,5 @@
 import { openSync, closeSync } from "fs";
+import { normalize } from "path";
 import FileDataView from "./FileDataView";
 import Resource from "./Resource";
 import { ResourceHeader, ResourceMap } from "./types";
@@ -11,7 +12,12 @@ export default class ResourceFork {
   protected _header?: ResourceHeader;
   protected _resourceMap?: ResourceMap;
 
-  constructor(readonly filePath: string) {
+  constructor(filePath: string, readResourceFork = true) {
+    if (readResourceFork) {
+      filePath = normalize(filePath + "/..namedfork/rsrc");
+    } else {
+      filePath = normalize(filePath);
+    }
     this.fd = openSync(filePath, "r");
     this.view = new FileDataView(this.fd);
   }
