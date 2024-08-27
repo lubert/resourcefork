@@ -61,4 +61,11 @@ export default class Resource {
       })
       .join(" ");
   }
+
+  toMidi() {
+    if (this.type.toLowerCase() !== "tune") {
+      throw new Error("Resource is not a tune");
+    }
+    return tuneToMidi(this.toBuffer());
+  }
 }
