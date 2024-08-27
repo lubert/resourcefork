@@ -1,36 +1,22 @@
-import { openSync, closeSync } from "fs";
-import { normalize } from "path";
-import FileDataView from "./FileDataView";
 import Resource from "./Resource";
-import { ResourceHeader, ResourceMap } from "./types";
+import { BufferLike, ResourceHeader, ResourceMap } from "./types";
 import { decodeMacRoman } from "./utils";
 
 export default class ResourceFork {
-  fd: number;
-  view: FileDataView;
-
   protected _header?: ResourceHeader;
   protected _resourceMap?: ResourceMap;
 
-  constructor(filePath: string, readResourceFork = true) {
-    if (readResourceFork) {
-      filePath = normalize(filePath + "/..namedfork/rsrc");
-    } else {
-      filePath = normalize(filePath);
-    }
-    this.fd = openSync(filePath, "r");
-    this.view = new FileDataView(this.fd);
-  }
+  constructor(readonly buffer: BufferLike) {}
 
   /**
    * Returns the resource fork header.
    */
   header(): ResourceHeader {
     if (!this._header) {
-      const dataOffset = this.view.readUInt32BE(0);
-      const mapOffset = this.view.readUInt32BE(4);
-      const dataLength = this.view.readUInt32BE(8);
-      const mapLength = this.view.readUInt32BE(12);
+      const dataOffset = this.buffer.readUInt32BE(0);
+      const mapOffset = this.buffer.readUInt32BE(4);
+      const dataLength = this.buffer.readUInt32BE(8);
+      const mapLength = this.buffer.readUInt32BE(12);
       this._header = {
         dataOffset,
         mapOffset,
@@ -39,10 +25,10 @@ export default class ResourceFork {
       };
 
       if (
-        dataOffset !== this.view.readUInt32BE(mapOffset) ||
-        mapOffset !== this.view.readUInt32BE(mapOffset + 4) ||
-        dataLength !== this.view.readUInt32BE(mapOffset + 8) ||
-        mapLength !== this.view.readUInt32BE(mapOffset + 12)
+        dataOffset !== this.buffer.readUInt32BE(mapOffset) ||
+        mapOffset !== this.buffer.readUInt32BE(mapOffset + 4) ||
+        dataLength !== this.buffer.readUInt32BE(mapOffset + 8) ||
+        mapLength !== this.buffer.readUInt32BE(mapOffset + 12)
       ) {
         throw Error("Not a valid resource fork");
       }
@@ -57,12 +43,12 @@ export default class ResourceFork {
     if (!this._resourceMap) {
       const resourceMap: ResourceMap = {};
       const { dataOffset, mapOffset } = this.header();
-      const typesOffset = this.view.readUInt16BE(mapOffset + 24) + mapOffset;
-      const namesOffset = this.view.readUInt16BE(mapOffset + 26) + mapOffset;
+      const typesOffset = this.buffer.readUInt16BE(mapOffset + 24) + mapOffset;
+      const namesOffset = this.buffer.readUInt16BE(mapOffset + 26) + mapOffset;
 
-      const typesView = this.view.withOffset(typesOffset);
-      const namesView = this.view.withOffset(namesOffset);
-      const dataView = this.view.withOffset(dataOffset);
+      const typesView = this.buffer.subarray(typesOffset);
+      const namesView = this.buffer.subarray(namesOffset);
+      const dataView = this.buffer.subarray(dataOffset);
 
       // Count is stored as the number of resource types in the map minus 1
       const typesCount = typesView.readUInt16BE(0);
@@ -101,14 +87,16 @@ export default class ResourceFork {
 
           const dataOffset = (tmsb << 16) + t;
           const dataLength = dataView.readUInt32BE(dataOffset);
-          const res = new Resource(
-            dataView,
-            type,
-            id,
-            name,
+          const buf = dataView.subarray(
             dataOffset + 4,
-            dataLength,
+            dataOffset + 4 + dataLength,
           );
+          if (buf.byteLength !== dataLength) {
+            throw new Error(
+              `Buffer length ${buf.byteLength} does not match resource length ${dataLength}`,
+            );
+          }
+          const res = new Resource(buf, type, id, name);
           resourceMap[type][res.id] = res;
         }
       }
@@ -122,12 +110,5 @@ export default class ResourceFork {
    */
   getResource(type: string, id: number): Resource | undefined {
     return this.resourceMap()[type]?.[id];
-  }
-
-  /**
-   * Closes the resource fork file descriptor.
-   */
-  close() {
-    closeSync(this.fd);
   }
 }

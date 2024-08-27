@@ -1,4 +1,5 @@
-import FileDataView from "./FileDataView";
+import { tuneToMidi } from "./tune";
+import { BufferLike } from "./types";
 
 /**
  * Represents a resource in a resource fork. Data is not loaded into memory
@@ -6,24 +7,24 @@ import FileDataView from "./FileDataView";
  */
 export default class Resource {
   constructor(
-    readonly data: FileDataView,
+    readonly buffer: BufferLike,
     readonly type: string,
     readonly id: number,
     readonly name: string,
-    readonly offset: number,
-    readonly length: number,
   ) {}
 
-  buffer() {
-    return this.data.readBytes(this.length, this.offset);
+  toBuffer(): Buffer {
+    const buffer = Buffer.alloc(this.buffer.byteLength);
+    this.buffer.copy(buffer);
+    return buffer;
   }
 
   toByteArray() {
-    return Array.from(this.buffer());
+    return Array.from(this.toBuffer());
   }
 
   toShortArray() {
-    const buffer = this.buffer();
+    const buffer = this.toBuffer();
     const shortArray = [];
     for (let i = 0; i < buffer.length; i += 2) {
       shortArray.push(buffer.readUInt16BE(i));
@@ -32,7 +33,7 @@ export default class Resource {
   }
 
   toIntArray() {
-    const buffer = this.buffer();
+    const buffer = this.toBuffer();
     const intArray = [];
     for (let i = 0; i < buffer.length; i += 4) {
       intArray.push(buffer.readUInt32BE(i));
