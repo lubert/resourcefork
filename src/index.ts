@@ -1,6 +1,15 @@
+import FileBuffer from "./FileBuffer";
 import Resource from "./Resource";
 import ResourceFork from "./ResourceFork";
-import { ResourceMap, ResourceHeader } from "./types";
+import { BufferLike, ResourceHeader, ResourceMap } from "./types";
 import { decodeMacRoman } from "./utils";
 
-export { Resource, ResourceFork, ResourceHeader, ResourceMap, decodeMacRoman };
+export {
+  BufferLike,
+  FileBuffer,
+  Resource,
+  ResourceFork,
+  ResourceHeader,
+  ResourceMap,
+  decodeMacRoman,
+};

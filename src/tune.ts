@@ -1,10 +1,8 @@
 class MidiChunkHeader {
-  magic: number;
-  size: number;
-  constructor(magic: number, size: number) {
-    this.magic = magic;
-    this.size = size;
-  }
+  constructor(
+    public magic: number,
+    public size: number,
+  ) {}
 
   toBuffer() {
     const buffer = Buffer.alloc(8);
@@ -15,22 +13,12 @@ class MidiChunkHeader {
 }
 
 class MidiHeader {
-  header: MidiChunkHeader;
-  format: number;
-  track_count: number;
-  division: number;
-
   constructor(
-    header: MidiChunkHeader,
-    format: number,
-    track_count: number,
-    division: number,
-  ) {
-    this.header = header;
-    this.format = format;
-    this.track_count = track_count;
-    this.division = division;
-  }
+    public header: MidiChunkHeader,
+    public format: number,
+    public track_count: number,
+    public division: number,
+  ) {}
 
   toBuffer() {
     const buffer = Buffer.alloc(14);
@@ -44,11 +32,14 @@ class MidiHeader {
 }
 
 class MidiEvent {
-  when: bigint; //uint64
-  status: number; //uint8
   data: number[];
 
-  constructor(when: bigint, status: number, param1: number, param2?: number) {
+  constructor(
+    public when: bigint,
+    public status: number,
+    param1: number,
+    param2?: number,
+  ) {
     this.when = when;
     this.status = status;
     this.data = [param1];
