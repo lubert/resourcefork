@@ -3,7 +3,7 @@
 Read and parse classic Mac OS resource forks in node.
 
 ## Usage
-```
+```javascript
 import { ResourceFork } from 'resourcefork'
 
 // ResourceFork accepts a 'BufferLike' object which can be a buffer...
