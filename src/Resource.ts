@@ -3,8 +3,7 @@ import { tuneToMidi } from "./tune";
 import { BufferLike } from "./types";
 
 /**
- * Represents a resource in a resource fork. Data is not loaded into memory
- * until requested.
+ * Represents a resource in a resource fork.
  */
 export default class Resource {
   constructor(
@@ -65,14 +64,14 @@ export default class Resource {
 
   toMidi() {
     if (this.type.toLowerCase() !== "tune") {
-      throw new Error("Resource is not a tune");
+      throw new Error("Resource is not type 'Tune'");
     }
     return tuneToMidi(this.toBuffer());
   }
 
   toWav() {
     if (this.type.toLowerCase() !== "snd ") {
-      throw new Error("Resource is not a sound");
+      throw new Error("Resource is not type 'snd '");
     }
     const res = decodeSndData(this.toBuffer());
     return res.data;
