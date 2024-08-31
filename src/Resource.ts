@@ -1,3 +1,4 @@
+import { decodeSndData } from "./snd";
 import { tuneToMidi } from "./tune";
 import { BufferLike } from "./types";
 
@@ -67,5 +68,13 @@ export default class Resource {
       throw new Error("Resource is not a tune");
     }
     return tuneToMidi(this.toBuffer());
+  }
+
+  toWav() {
+    if (this.type.toLowerCase() !== "snd ") {
+      throw new Error("Resource is not a sound");
+    }
+    const res = decodeSndData(this.toBuffer());
+    return res.data;
   }
 }
